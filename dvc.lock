@@ -55,12 +55,27 @@ stages:
       hash: md5
       md5: e1c50e0698b7e16c94a4589ebd858bcb
       size: 2203
+    params:
+      configs/model/train.yaml:
+        model:
+          name: logistic_regression
+          random_state: 42
+          max_iter: 1000
+          C: 0.1
+          solver: lbfgs
+        output:
+          model_path: models/model.pkl
+          metrics_path: metrics/metrics.json
+        training:
+          test_size: 0.2
+          stratify: true
+          debug_param: 1
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: dbb7f75e68cfbf950bbdd793c4a1cea0
+      md5: b50a602fc85260415b4cba21b3de7794
       size: 138
     - path: models/model.pkl
       hash: md5
-      md5: 4664e094f19a87adc64432a8c18ad516
+      md5: 96684cb79e0cea109421e47342de66eb
       size: 1487

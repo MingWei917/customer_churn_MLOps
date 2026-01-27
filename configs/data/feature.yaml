@@ -1,0 +1,31 @@
+input:
+  path: data/processed/customer_churn.parquet
+
+output:
+  features: data/features/feature.parquet
+  labels: data/features/label.parquet
+  schema: data/features/schema.yaml
+
+features:
+  numeric:
+    - tenure
+    - MonthlyCharges
+
+  categorical:
+    - Contract
+    - PaymentMethod
+    - InternetService
+
+categorical_config:
+  encoding: onehot
+  handle_unknown: ignore   
+
+label:
+  name: Churn
+  positive: "Yes"
+  negative: "No"
+  dtype: int8
+
+onehot_config:
+  dtype: int8          # True/False → 1/0
+  drop_first: false    

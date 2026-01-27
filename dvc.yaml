@@ -28,6 +28,11 @@ stages:
       - data/features/feature.parquet
       - data/features/label.parquet
       - src/model/train.py
+    params:
+      - configs/model/train.yaml:
+          - model
+          - training
+          - output
     outs:
       - models/model.pkl
     metrics:
