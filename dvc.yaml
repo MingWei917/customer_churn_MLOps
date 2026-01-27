@@ -1,0 +1,34 @@
+stages:
+  # ingest:
+  #   cmd: python src/ingest.py
+  #   outs:
+  #     - data/raw/customer_churn.parquet
+
+  preprocess:
+    cmd: python src/data/preprocess.py
+    deps:
+      - data/raw/customer_churn.csv
+      - src/data/preprocess.py
+    outs:
+      - data/processed/customer_churn.parquet
+
+  feature:
+    cmd: python src/data/feature.py
+    deps:
+      - data/processed/customer_churn.parquet
+      - src/data/feature.py
+      - configs/data/feature.yaml
+    outs:
+      - data/features/feature.parquet
+      - data/features/label.parquet
+
+  train:
+    cmd: python src/model/train.py
+    deps:
+      - data/features/feature.parquet
+      - data/features/label.parquet
+      - src/model/train.py
+    outs:
+      - models/model.pkl
+    metrics:
+      - metrics/metrics.json

@@ -1,0 +1,66 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python src/data/preprocess.py
+    deps:
+    - path: data/raw/customer_churn.csv
+      hash: md5
+      md5: 854081ba41b595ae4ed206710813002a
+      size: 874328
+    - path: src/data/preprocess.py
+      hash: md5
+      md5: 66d66883d349ff37483b241de0f2bd85
+      size: 456
+    outs:
+    - path: data/processed/customer_churn.parquet
+      hash: md5
+      md5: 9689e0f41bb4c3d97a0db5c9c48688d8
+      size: 107722
+  feature:
+    cmd: python src/data/feature.py
+    deps:
+    - path: configs/data/feature.yaml
+      hash: md5
+      md5: f683ab4c2222b3c09deda00154d394a0
+      size: 561
+    - path: data/processed/customer_churn.parquet
+      hash: md5
+      md5: 9689e0f41bb4c3d97a0db5c9c48688d8
+      size: 107722
+    - path: src/data/feature.py
+      hash: md5
+      md5: c1a4ce340b4172b399cbae4d5e87ccda
+      size: 1392
+    outs:
+    - path: data/features/feature.parquet
+      hash: md5
+      md5: a5ea4dbb43e5f6ecb050024e38044b0d
+      size: 52367
+    - path: data/features/label.parquet
+      hash: md5
+      md5: 6590276f68eeb57966458459fa00422f
+      size: 1933
+  train:
+    cmd: python src/model/train.py
+    deps:
+    - path: data/features/feature.parquet
+      hash: md5
+      md5: a5ea4dbb43e5f6ecb050024e38044b0d
+      size: 52367
+    - path: data/features/label.parquet
+      hash: md5
+      md5: 6590276f68eeb57966458459fa00422f
+      size: 1933
+    - path: src/model/train.py
+      hash: md5
+      md5: e1c50e0698b7e16c94a4589ebd858bcb
+      size: 2203
+    outs:
+    - path: metrics/metrics.json
+      hash: md5
+      md5: dbb7f75e68cfbf950bbdd793c4a1cea0
+      size: 138
+    - path: models/model.pkl
+      hash: md5
+      md5: 4664e094f19a87adc64432a8c18ad516
+      size: 1487
