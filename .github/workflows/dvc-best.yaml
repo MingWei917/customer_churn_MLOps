@@ -1,0 +1,41 @@
+name: DVC Best Model Apply
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  best-model:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install deps
+      run: |
+        pip install -r requirements.txt
+
+    - name: Pull data
+      run: dvc pull
+
+    - name: Run pipeline
+      run: dvc repro
+
+    - name: Apply best experiment
+      run: bash scripts/select_best_exp.sh
+
+    - name: Commit best model
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add dvc.lock models/model.pkl metrics/val_metrics.json
+        git commit -m "ci: apply best validation model" || echo "No changes"
+
+    - name: Push changes
+      run: git push
