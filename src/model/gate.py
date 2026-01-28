@@ -10,3 +10,9 @@ if metrics["val_f1"] < gate["min_val_f1"]:
     sys.exit("❌ Validation F1 gate failed")
 
 print("✅ Validation gate passed")
+
+# baseline = json.load(open("metrics/baseline_metrics.json"))
+
+# if metrics["val_accuracy"] < baseline["val_accuracy"]:
+#     sys.exit("❌ Worse than baseline")
+
