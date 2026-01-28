@@ -55,6 +55,12 @@ stages:
       - models/model.pkl
     metrics:
       - metrics/metrics.json
+    
+  gate:
+    cmd: python src/model/gate.py
+    deps:
+      - metrics/metrics.json
+      - configs/model/validation.yaml
 
   evaluate:
     cmd: python src/model/evaluate.py
