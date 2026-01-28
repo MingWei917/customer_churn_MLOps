@@ -1,87 +1,78 @@
-from pathlib import Path
 import json
 import yaml
-import joblib
 import pandas as pd
-
-from sklearn.model_selection import train_test_split
+from pathlib import Path
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import (
-    accuracy_score,
-    roc_auc_score,
-    precision_score,
-    recall_score
-)
+from sklearn.metrics import accuracy_score, f1_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 
-# -----------------------
-# Path setup
-# -----------------------
-BASE_DIR = Path(__file__).resolve().parents[2]
+# paths
+CFG_PATH = "configs/model/train.yaml"
+METRICS_PATH = "metrics/metrics.json"
+MODEL_PATH = "models/model.pkl"
 
-FEATURE_PATH = "data/features/feature.parquet"
-LABEL_PATH = "data/features/label.parquet"
-CONFIG_PATH = BASE_DIR / "configs/model/train.yaml"
-#CONFIG_PATH = "configs/model/train.yaml"
+TRAIN_X = "data/split/train_features.parquet"
+TRAIN_Y = "data/split/train_labels.parquet"
+VAL_X = "data/split/val_features.parquet"
+VAL_Y = "data/split/val_labels.parquet"
 
-Path("models").mkdir(exist_ok=True)
-Path("metrics").mkdir(exist_ok=True)
+def load_config():
+    with open(CFG_PATH, "r") as f:
+        return yaml.safe_load(f)
 
-# -----------------------
-# Load config
-# -----------------------
-with open(CONFIG_PATH, "r") as f:
-    cfg = yaml.safe_load(f)
-# -----------------------
-# Load data
-# -----------------------
-X = pd.read_parquet(FEATURE_PATH)
-y = pd.read_parquet(LABEL_PATH).iloc[:, 0]  # Series
+def main():
+    cfg = load_config()
 
-# -----------------------
-# Train / valid split
-# -----------------------
-stratify = y if cfg["training"]["stratify"] else None
+    X_train = pd.read_parquet(TRAIN_X)
+    y_train = pd.read_parquet(TRAIN_Y).iloc[:, 0]
 
-X_train, X_val, y_train, y_val = train_test_split(
-    X,
-    y,
-    test_size=cfg["training"]["test_size"],
-    random_state=cfg["model"]["random_state"],
-    stratify=stratify,
-)
+    X_val = pd.read_parquet(VAL_X)
+    y_val = pd.read_parquet(VAL_Y).iloc[:, 0]
 
-# -----------------------
-# Model
-# -----------------------
-model = LogisticRegression(
-    random_state=cfg["model"]["random_state"],
-    max_iter=cfg["model"]["max_iter"],
-    C=cfg["model"]["C"],
-    solver=cfg["model"]["solver"],
-)
+    model_cfg = cfg["model"]
 
-model.fit(X_train, y_train)
+    pipeline = Pipeline(
+        steps=[
+            ("scaler", StandardScaler()),
+            (
+                "model",
+                LogisticRegression(
+                    random_state=model_cfg["random_state"],
+                    max_iter=model_cfg["max_iter"],
+                    C=model_cfg["C"],
+                    solver=model_cfg["solver"],
+                ),
+            ),
+        ]
+    )
 
-# -----------------------
-# Evaluation
-# -----------------------
-y_pred = model.predict(X_val)
-y_proba = model.predict_proba(X_val)[:, 1]
+    # 1️⃣ Train
+    pipeline.fit(X_train, y_train)
 
-metrics = {
-    "accuracy": accuracy_score(y_val, y_pred),
-    "roc_auc": roc_auc_score(y_val, y_proba),
-    "precision": precision_score(y_val, y_pred),
-    "recall": recall_score(y_val, y_pred),
-}
+    # 2️⃣ Validation evaluation
+    val_preds = pipeline.predict(X_val)
 
-# -----------------------
-# Save artifacts
-# -----------------------
-joblib.dump(model, cfg["output"]["model_path"])
+    val_accuracy = accuracy_score(y_val, val_preds)
+    val_f1 = f1_score(y_val, val_preds)
 
-with open(cfg["output"]["metrics_path"], "w") as f:
-    json.dump(metrics, f, indent=2)
+    metrics = {
+        "val_accuracy": val_accuracy,
+        "val_f1": val_f1,
+    }
 
-print("Training finished")
-print(metrics)
+    # save artifacts
+    Path("models").mkdir(exist_ok=True)
+    Path("metrics").mkdir(exist_ok=True)
+
+    import joblib
+    joblib.dump(pipeline, MODEL_PATH)
+
+    with open(METRICS_PATH, "w") as f:
+        json.dump(metrics, f, indent=2)
+
+    print("✅ Training completed")
+    print(metrics)
+
+if __name__ == "__main__":
+    main()

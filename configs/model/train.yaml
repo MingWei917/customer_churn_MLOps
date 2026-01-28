@@ -1,7 +1,7 @@
 model:
   name: logistic_regression
   random_state: 42
-  max_iter: 1000
+  max_iter: 5000
   C: 0.8
   solver: lbfgs
 

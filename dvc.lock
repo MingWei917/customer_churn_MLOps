@@ -43,24 +43,32 @@ stages:
   train:
     cmd: python src/model/train.py
     deps:
-    - path: data/features/feature.parquet
+    - path: data/split/train_features.parquet
       hash: md5
-      md5: a5ea4dbb43e5f6ecb050024e38044b0d
-      size: 52367
-    - path: data/features/label.parquet
+      md5: 78ac52f28f4618b98fdb50dc6e0f0cb9
+      size: 64076
+    - path: data/split/train_labels.parquet
       hash: md5
-      md5: 6590276f68eeb57966458459fa00422f
-      size: 1933
+      md5: e0a16cb142b4bbdb7882f0b448b3d969
+      size: 25792
+    - path: data/split/val_features.parquet
+      hash: md5
+      md5: 7df3536423f0f1f94010683b4b9b7df7
+      size: 17568
+    - path: data/split/val_labels.parquet
+      hash: md5
+      md5: a2e26c1c6a1b46a01ba3b4a56517b8b1
+      size: 5306
     - path: src/model/train.py
       hash: md5
-      md5: e1c50e0698b7e16c94a4589ebd858bcb
-      size: 2203
+      md5: c911d1443a6286ba0bdaae157d14c56d
+      size: 2011
     params:
       configs/model/train.yaml:
         model:
           name: logistic_regression
           random_state: 42
-          max_iter: 1000
+          max_iter: 5000
           C: 0.8
           solver: lbfgs
         output:
@@ -73,9 +81,77 @@ stages:
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: 8ccde172e99c39b234438bc3cbf347bb
-      size: 138
+      md5: 17bead728f677f0bb5b70c776e86b0a6
+      size: 73
     - path: models/model.pkl
       hash: md5
-      md5: 70a95356501c5d564cb1513775a5da99
-      size: 1487
+      md5: 223321217af98ad40192944d9d41a6ac
+      size: 2273
+  split:
+    cmd: python src/data/split.py
+    deps:
+    - path: configs/data/split.yaml
+      hash: md5
+      md5: 119f52245a54b9fc251397800f4ed698
+      size: 76
+    - path: data/features/feature.parquet
+      hash: md5
+      md5: a5ea4dbb43e5f6ecb050024e38044b0d
+      size: 52367
+    - path: data/features/label.parquet
+      hash: md5
+      md5: 6590276f68eeb57966458459fa00422f
+      size: 1933
+    - path: src/data/split.py
+      hash: md5
+      md5: b926ea18d229f867d38d9c5a87322910
+      size: 1713
+    outs:
+    - path: data/split/test_features.parquet
+      hash: md5
+      md5: 301afdfb9e6ca1feffc1d3ce7ac69022
+      size: 25525
+    - path: data/split/test_labels.parquet
+      hash: md5
+      md5: 4fbce2555983d6cd38498d7182905f21
+      size: 8612
+    - path: data/split/train_features.parquet
+      hash: md5
+      md5: 78ac52f28f4618b98fdb50dc6e0f0cb9
+      size: 64076
+    - path: data/split/train_labels.parquet
+      hash: md5
+      md5: e0a16cb142b4bbdb7882f0b448b3d969
+      size: 25792
+    - path: data/split/val_features.parquet
+      hash: md5
+      md5: 7df3536423f0f1f94010683b4b9b7df7
+      size: 17568
+    - path: data/split/val_labels.parquet
+      hash: md5
+      md5: a2e26c1c6a1b46a01ba3b4a56517b8b1
+      size: 5306
+  evaluate:
+    cmd: python src/model/evaluate.py
+    deps:
+    - path: data/split/test_features.parquet
+      hash: md5
+      md5: 301afdfb9e6ca1feffc1d3ce7ac69022
+      size: 25525
+    - path: data/split/test_labels.parquet
+      hash: md5
+      md5: 4fbce2555983d6cd38498d7182905f21
+      size: 8612
+    - path: models/model.pkl
+      hash: md5
+      md5: 223321217af98ad40192944d9d41a6ac
+      size: 2273
+    - path: src/model/evaluate.py
+      hash: md5
+      md5: f39f56ab2820821b62f9805bf7cdacd4
+      size: 1113
+    outs:
+    - path: metrics/test_metrics.json
+      hash: md5
+      md5: cc7f1384bd3b2c48327f244a2a923c7f
+      size: 108
