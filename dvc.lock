@@ -69,7 +69,7 @@ stages:
           name: logistic_regression
           random_state: 42
           max_iter: 5000
-          C: 0.8
+          C: 0.7
           solver: lbfgs
         output:
           model_path: models/model.pkl
@@ -85,7 +85,7 @@ stages:
       size: 73
     - path: models/model.pkl
       hash: md5
-      md5: 223321217af98ad40192944d9d41a6ac
+      md5: e0369f0d1988e28fbf6b2e3101dbddf3
       size: 2273
   split:
     cmd: python src/data/split.py
@@ -144,7 +144,7 @@ stages:
       size: 8612
     - path: models/model.pkl
       hash: md5
-      md5: 223321217af98ad40192944d9d41a6ac
+      md5: e0369f0d1988e28fbf6b2e3101dbddf3
       size: 2273
     - path: src/model/evaluate.py
       hash: md5
@@ -153,5 +153,16 @@ stages:
     outs:
     - path: metrics/test_metrics.json
       hash: md5
-      md5: cc7f1384bd3b2c48327f244a2a923c7f
+      md5: a3e792d5dd15dac05b09c277ce757888
       size: 108
+  gate:
+    cmd: python src/model/gate.py
+    deps:
+    - path: configs/model/validation.yaml
+      hash: md5
+      md5: 848521f7e050d15163f24cf2f4f195bd
+      size: 47
+    - path: metrics/metrics.json
+      hash: md5
+      md5: 17bead728f677f0bb5b70c776e86b0a6
+      size: 73
