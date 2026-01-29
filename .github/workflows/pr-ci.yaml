@@ -1,0 +1,41 @@
+name: PR CI - Regression Check
+
+on:
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  pr-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout PR code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install deps
+      run: |
+        pip install -r requirements.txt
+        pip install dvc
+
+    - name: Pull base metrics
+      run: |
+        git checkout origin/dev
+        dvc pull
+        cp metrics/val_metrics.json base_metrics.json
+
+    - name: Run PR pipeline
+      run: |
+        git checkout ${{ github.head_ref }}
+        dvc repro
+
+    - name: Check regression
+      run: |
+        python scripts/check_regression.py \
+          base_metrics.json metrics/val_metrics.json
