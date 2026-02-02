@@ -27,12 +27,12 @@ jobs:
 
     - name: Pull base metrics
       run: |
+        git checkout feature/test1
         dvc pull
         cp metrics/val_metrics.json base_metrics.json
 
     - name: Run PR pipeline
       run: |
-        git checkout ${{ github.head_ref }}
         dvc repro
 
     - name: Check regression
