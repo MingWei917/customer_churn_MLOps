@@ -29,8 +29,8 @@ jobs:
       run: |
         git fetch origin dev
         git checkout dev
-        dvc pull metrics/val_metrics.json
-        cp metrics/val_metrics.json base_metrics.json
+        dvc pull metrics/metrics.json
+        cp metrics/metrics.json baseline_metrics.json
 
     # 🔹 reswtich PR branch
     - name: Switch back to PR branch
