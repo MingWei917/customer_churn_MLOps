@@ -25,18 +25,18 @@ jobs:
         pip install dvc
         pip install dagshub
 
-    # - name: Pull base metrics
-    #   run: |
-    #     git checkout origin/dev
-    #     dvc pull
-    #     cp metrics/val_metrics.json base_metrics.json
+    - name: Pull base metrics
+      run: |
+        git checkout origin/dev
+        dvc pull
+        cp metrics/val_metrics.json base_metrics.json
 
-    # - name: Run PR pipeline
-    #   run: |
-    #     git checkout ${{ github.head_ref }}
-    #     dvc repro
+    - name: Run PR pipeline
+      run: |
+        git checkout ${{ github.head_ref }}
+        dvc repro
 
-    # - name: Check regression
-    #   run: |
-    #     python scripts/check_regression.py \
-    #       base_metrics.json metrics/val_metrics.json
+    - name: Check regression
+      run: |
+        python scripts/check_regression.py \
+          base_metrics.json metrics/val_metrics.json

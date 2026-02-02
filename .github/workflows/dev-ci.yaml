@@ -23,8 +23,8 @@ jobs:
         pip install dvc
         pip install dagshub
 
-    # - name: Pull data
-    #   run: dvc pull
+    - name: Pull data
+      run: dvc pull
 
-    # - name: Run full pipeline (dev scale)
-    #   run: dvc repro
+    - name: Run full pipeline (dev scale)
+      run: dvc repro
