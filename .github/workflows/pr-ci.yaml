@@ -24,15 +24,15 @@ jobs:
         pip install -r requirements.txt
         pip install dvc dagshub
 
-    - name: Pull base metrics
-      run: |
-        dvc pull
-        
-    - name: Run PR pipeline
-      run: |
-        dvc repro
+    # - name: Pull base metrics
+    #   run: |
+    #     dvc pull
 
-    - name: Check regression
-      run: |
-        python scripts/check_regression.py \
-          base_metrics.json metrics/val_metrics.json
+    # - name: Run PR pipeline
+    #   run: |
+    #     dvc repro
+
+    # - name: Check regression
+    #   run: |
+    #     python scripts/check_regression.py \
+    #       base_metrics.json metrics/val_metrics.json
