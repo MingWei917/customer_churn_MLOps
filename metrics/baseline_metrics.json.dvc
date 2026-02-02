@@ -1,5 +1,0 @@
-outs:
-- md5: a5700e08138d2c45666cf1c84d95a360
-  size: 93
-  hash: md5
-  path: baseline_metrics.json
