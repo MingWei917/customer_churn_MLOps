@@ -27,7 +27,6 @@ jobs:
 
     - name: Pull base metrics
       run: |
-        git checkout origin/feature/test1
         dvc pull
         cp metrics/val_metrics.json base_metrics.json
 
