@@ -24,23 +24,12 @@ jobs:
         pip install -r requirements.txt
         pip install dvc dagshub
 
-    # 🔹 base(dev) bring metrics
-    # - name: Pull base metrics (dev)
-    #   run: |
-    #     git fetch origin dev
-    #     git checkout dev
-    #     dvc pull metrics/metrics.json
-    #     cp metrics/metrics.json baseline_metrics.json
-
-    # # 🔹 reswtich PR branch
-    # - name: Switch back to PR branch
-    #   run: |
-    #     git checkout -
-
-    # # 🔹 PR  pipeline execute
-    # - name: Run PR pipeline
+    # - name: Pull base metrics
     #   run: |
     #     dvc pull
+
+    # - name: Run PR pipeline
+    #   run: |
     #     dvc repro
 
     # - name: Check regression
