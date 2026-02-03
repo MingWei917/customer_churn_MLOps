@@ -28,11 +28,11 @@ jobs:
       run: |
         dvc pull --force
         
-    # - name: Run PR pipeline
-    #   run: |
-    #     dvc repro
-    #     dvc metrics diff origin/dev --json > metrics_diff.json
+    - name: Run PR pipeline
+      run: |
+        dvc repro
+        dvc metrics diff origin/dev --json > metrics_diff.json
 
-    # - name: Check regression
-    #   run: |
-    #     python scripts/check_regression.py metrics_diff.json
+    - name: Check regression
+      run: |
+        python scripts/check_regression.py metrics_diff.json
