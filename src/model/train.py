@@ -91,6 +91,17 @@ def main():
         # log metrics to MLflow
         mlflow.log_metrics(metrics)
 
+        # --------------------
+        # MLflow Model Registry (register)
+        # --------------------
+        mlflow.sklearn.log_model(
+            sk_model=pipeline,
+            name="model",
+            registered_model_name="customer_churn_model"
+        )
+
+
+
         # save artifacts
         Path("models").mkdir(exist_ok=True)
         Path("metrics").mkdir(exist_ok=True)
