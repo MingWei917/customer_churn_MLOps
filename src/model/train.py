@@ -9,6 +9,7 @@ from sklearn.pipeline import Pipeline
 
 import mlflow
 import mlflow.sklearn
+import os
 
 # paths
 CFG_PATH = "configs/model/train.yaml"
@@ -28,8 +29,6 @@ def main():
     cfg = load_config()
     model_cfg = cfg["model"]
 
-    
-    
 
     # --------------------
     # MLflow setup
