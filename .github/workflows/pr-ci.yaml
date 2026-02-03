@@ -26,7 +26,7 @@ jobs:
 
     - name: Pull base metrics
       run: |
-        dvc pull
+        dvc pull --force
         
     - name: Run PR pipeline
       run: |
