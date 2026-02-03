@@ -1,7 +1,5 @@
 [core]
     remote = dagshub
-['remote "storage"']
-    url = /mnt/d/dvc-storage
 ['remote "dagshub"']
     url = https://dagshub.com/MingWei917/customer_churn_MLOps.dvc
     auth = basic

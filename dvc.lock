@@ -81,8 +81,8 @@ stages:
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: 17bead728f677f0bb5b70c776e86b0a6
-      size: 73
+      md5: 183b509b8dadc2b5e14052febdea0366
+      size: 94
     - path: models/model.pkl
       hash: md5
       md5: e0369f0d1988e28fbf6b2e3101dbddf3
@@ -164,5 +164,5 @@ stages:
       size: 47
     - path: metrics/metrics.json
       hash: md5
-      md5: 17bead728f677f0bb5b70c776e86b0a6
-      size: 73
+      md5: 183b509b8dadc2b5e14052febdea0366
+      size: 94
