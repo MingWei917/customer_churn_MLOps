@@ -31,7 +31,7 @@ jobs:
     # - name: Run PR pipeline
     #   run: |
     #     dvc repro
-    #     dvc metrics diff origin/main --json > metrics_diff.json
+    #     dvc metrics diff origin/dev --json > metrics_diff.json
 
     # - name: Check regression
     #   run: |
