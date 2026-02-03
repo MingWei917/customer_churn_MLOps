@@ -22,20 +22,14 @@ jobs:
     - name: Install deps
       run: |
         pip install -r requirements.txt
-        pip install dvc
+        pip install dvc dagshub mlflow
 
-    # - name: Pull base metrics
-    #   run: |
-    #     git checkout origin/dev
-    #     dvc pull
-    #     cp metrics/val_metrics.json base_metrics.json
+    - name: DVC sanity check
+      run: dvc dag
 
-    # - name: Run PR pipeline
-    #   run: |
-    #     git checkout ${{ github.head_ref }}
-    #     dvc repro
+    - name: Metrics diff only
+      run: |
+        dvc metrics diff origin/dev --json > metrics_diff.json || true
 
-    # - name: Check regression
-    #   run: |
-    #     python scripts/check_regression.py \
-    #       base_metrics.json metrics/val_metrics.json
+    - name: Check regression
+      run: python scripts/check_regression.py metrics_diff.json

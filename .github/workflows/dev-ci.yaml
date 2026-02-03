@@ -9,21 +9,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.10"
-
-    - name: Install deps
+    
+    # when use docker, it would be removed  
+    - name: Install runtime deps
       run: |
         pip install -r requirements.txt
-        pip install dvc
+        pip install dvc dagshub mlflow
 
-    # - name: Pull data
-    #   run: dvc pull
 
-    # - name: Run full pipeline (dev scale)
-    #   run: dvc repro
+    - name: DVC pull
+      run: dvc pull
+
+    - name: Reproduce pipeline
+      run: dvc repro
+
+    - name: Push artifacts
+      run: dvc push
