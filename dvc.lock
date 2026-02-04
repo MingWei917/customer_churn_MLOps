@@ -61,19 +61,20 @@ stages:
       size: 5306
     - path: src/model/train.py
       hash: md5
-      md5: eb15dc7d8619280c4c4907fad5d03fba
-      size: 3130
+      md5: 75e5f5387ce79aab8989b77afaadb11c
+      size: 3240
     params:
       configs/model/train.yaml:
         model:
-          name: random_forest
+          name: xgboost
           params:
             n_estimators: 500
-            max_depth: 19
-            min_samples_split: 5
-            min_samples_leaf: 2
+            learning_rate: 0.05
+            max_depth: 6
+            subsample: 0.8
+            colsample_bytree: 0.8
+            eval_metric: logloss
             random_state: 42
-            n_jobs: -1
         output:
           model_path: models/model.pkl
           metrics_path: metrics/metrics.json
@@ -83,12 +84,12 @@ stages:
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: d6108a965cd3c4af236e6a9fd5f9d109
+      md5: 3320cbf86f58a7492a67c8c09b0eac5b
       size: 72
     - path: models/model.pkl
       hash: md5
-      md5: 50e23019295e7abfcd8291691c189ac2
-      size: 61565554
+      md5: 6fc08b97cd7a637598516f4554eccf36
+      size: 1693069
   split:
     cmd: python src/data/split.py
     deps:
@@ -146,8 +147,8 @@ stages:
       size: 8612
     - path: models/model.pkl
       hash: md5
-      md5: b964d389eeafe2019c244b53aea55954
-      size: 60913234
+      md5: 6fc08b97cd7a637598516f4554eccf36
+      size: 1693069
     - path: src/model/evaluate.py
       hash: md5
       md5: f39f56ab2820821b62f9805bf7cdacd4
@@ -155,8 +156,8 @@ stages:
     outs:
     - path: metrics/test_metrics.json
       hash: md5
-      md5: 0b28ef63e153453bb3233164449e8c3b
-      size: 111
+      md5: d86df5f9f5d51c67d38a608072490f6a
+      size: 108
   gate:
     cmd: python src/model/gate.py
     deps:
@@ -166,5 +167,5 @@ stages:
       size: 47
     - path: metrics/metrics.json
       hash: md5
-      md5: 108db28a95f30c48363ae2568ccb2ef3
-      size: 71
+      md5: 3320cbf86f58a7492a67c8c09b0eac5b
+      size: 72
