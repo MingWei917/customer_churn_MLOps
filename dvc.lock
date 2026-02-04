@@ -61,19 +61,20 @@ stages:
       size: 5306
     - path: src/model/train.py
       hash: md5
-      md5: eb15dc7d8619280c4c4907fad5d03fba
-      size: 3130
+      md5: 75e5f5387ce79aab8989b77afaadb11c
+      size: 3240
     params:
       configs/model/train.yaml:
         model:
-          name: random_forest
+          name: xgboost
           params:
-            n_estimators: 300
-            max_depth: 12
-            min_samples_split: 5
-            min_samples_leaf: 2
+            n_estimators: 500
+            learning_rate: 0.05
+            max_depth: 6
+            subsample: 0.8
+            colsample_bytree: 0.8
+            eval_metric: logloss
             random_state: 42
-            n_jobs: -1
         output:
           model_path: models/model.pkl
           metrics_path: metrics/metrics.json
@@ -83,12 +84,12 @@ stages:
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: f57c19af227d7dd80fab6c5cd8bf4e73
+      md5: 3320cbf86f58a7492a67c8c09b0eac5b
       size: 72
     - path: models/model.pkl
       hash: md5
-      md5: 14fa1803351ffe0e4fa5ed484f44d57e
-      size: 22461874
+      md5: 6fc08b97cd7a637598516f4554eccf36
+      size: 1693069
   split:
     cmd: python src/data/split.py
     deps:
@@ -146,8 +147,8 @@ stages:
       size: 8612
     - path: models/model.pkl
       hash: md5
-      md5: 14fa1803351ffe0e4fa5ed484f44d57e
-      size: 22461874
+      md5: 6fc08b97cd7a637598516f4554eccf36
+      size: 1693069
     - path: src/model/evaluate.py
       hash: md5
       md5: f39f56ab2820821b62f9805bf7cdacd4
@@ -155,8 +156,8 @@ stages:
     outs:
     - path: metrics/test_metrics.json
       hash: md5
-      md5: 3e2d62ac3c10f8fa35380edd02c4a599
-      size: 109
+      md5: d86df5f9f5d51c67d38a608072490f6a
+      size: 108
   gate:
     cmd: python src/model/gate.py
     deps:
@@ -166,5 +167,5 @@ stages:
       size: 47
     - path: metrics/metrics.json
       hash: md5
-      md5: f57c19af227d7dd80fab6c5cd8bf4e73
+      md5: 3320cbf86f58a7492a67c8c09b0eac5b
       size: 72
