@@ -2,22 +2,25 @@ import json
 import yaml
 import pandas as pd
 from pathlib import Path
-
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, f1_score
-from sklearn.pipeline import Pipeline
-
-import mlflow
-import mlflow.sklearn
 import os
 import joblib
 
-# --------------------
-# paths
-# --------------------
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score, f1_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+
+import mlflow
+import mlflow.sklearn
+
+try:
+    from xgboost import XGBClassifier
+except ImportError:
+    XGBClassifier = None
+
+
 CFG_PATH = "configs/model/train.yaml"
-METRICS_PATH = "metrics/metrics.json"
-MODEL_PATH = "models/model.pkl"
 
 TRAIN_X = "data/split/train_features.parquet"
 TRAIN_Y = "data/split/train_labels.parquet"
@@ -30,13 +33,41 @@ def load_config():
         return yaml.safe_load(f)
 
 
+def build_pipeline(model_name, params):
+    if model_name == "logistic_regression":
+        return Pipeline(
+            steps=[
+                ("scaler", StandardScaler()),
+                ("model", LogisticRegression(**params)),
+            ]
+        )
+
+    if model_name == "random_forest":
+        return Pipeline(
+            steps=[
+                ("model", RandomForestClassifier(**params)),
+            ]
+        )
+
+    if model_name == "xgboost":
+        if XGBClassifier is None:
+            raise ImportError("xgboost is not installed")
+        return Pipeline(
+            steps=[
+                ("model", XGBClassifier(**params)),
+            ]
+        )
+
+    raise ValueError(f"Unknown model: {model_name}")
+
+
 def main():
     cfg = load_config()
     model_cfg = cfg["model"]
 
-    # --------------------
-    # MLflow setup
-    # --------------------
+    model_name = model_cfg["name"]
+    model_params = model_cfg["params"]
+
     mlflow.set_experiment("customer_churn")
 
     with mlflow.start_run():
@@ -46,81 +77,39 @@ def main():
             "stage": "train",
         })
 
-        # --------------------
-        # Log params
-        # --------------------
-        mlflow.log_params({
-            "model": "RandomForestClassifier",
-            "n_estimators": model_cfg["n_estimators"],
-            "max_depth": model_cfg["max_depth"],
-            "min_samples_split": model_cfg["min_samples_split"],
-            "min_samples_leaf": model_cfg["min_samples_leaf"],
-            "random_state": model_cfg["random_state"],
-        })
+        mlflow.log_param("model", model_name)
+        mlflow.log_params(model_params)
 
-        # --------------------
-        # Load data
-        # --------------------
         X_train = pd.read_parquet(TRAIN_X)
         y_train = pd.read_parquet(TRAIN_Y).iloc[:, 0]
-
         X_val = pd.read_parquet(VAL_X)
         y_val = pd.read_parquet(VAL_Y).iloc[:, 0]
 
-        # --------------------
-        # Model pipeline
-        # (No scaler for RF)
-        # --------------------
-        pipeline = Pipeline(
-            steps=[
-                (
-                    "model",
-                    RandomForestClassifier(
-                        n_estimators=model_cfg["n_estimators"],
-                        max_depth=model_cfg["max_depth"],
-                        min_samples_split=model_cfg["min_samples_split"],
-                        min_samples_leaf=model_cfg["min_samples_leaf"],
-                        random_state=model_cfg["random_state"],
-                        n_jobs=model_cfg.get("n_jobs", -1),
-                    ),
-                )
-            ]
-        )
+        pipeline = build_pipeline(model_name, model_params)
 
-        # 1️⃣ Train
         pipeline.fit(X_train, y_train)
 
-        # 2️⃣ Validation
         val_preds = pipeline.predict(X_val)
 
-        val_accuracy = accuracy_score(y_val, val_preds)
-        val_f1 = f1_score(y_val, val_preds)
-
         metrics = {
-            "val_accuracy": val_accuracy,
-            "val_f1": val_f1,
+            "val_accuracy": accuracy_score(y_val, val_preds),
+            "val_f1": f1_score(y_val, val_preds),
         }
 
         mlflow.log_metrics(metrics)
 
-        # --------------------
-        # MLflow model registry
-        # --------------------
         mlflow.sklearn.log_model(
             sk_model=pipeline,
             artifact_path="model",
             registered_model_name="customer_churn_model"
         )
 
-        # --------------------
-        # Save artifacts
-        # --------------------
         Path("models").mkdir(exist_ok=True)
         Path("metrics").mkdir(exist_ok=True)
 
-        joblib.dump(pipeline, MODEL_PATH)
+        joblib.dump(pipeline, "models/model.pkl")
 
-        with open(METRICS_PATH, "w") as f:
+        with open("metrics/metrics.json", "w") as f:
             json.dump(metrics, f, indent=2)
 
         print("✅ Training completed")
