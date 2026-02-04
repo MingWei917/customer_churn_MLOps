@@ -19,6 +19,9 @@ try:
 except ImportError:
     XGBClassifier = None
 
+# MLFLOW_URI = os.getenv("MLFLOW_TRACKING_URI")
+# if MLFLOW_URI:
+#     mlflow.set_tracking_uri(MLFLOW_URI)
 
 CFG_PATH = "configs/model/train.yaml"
 

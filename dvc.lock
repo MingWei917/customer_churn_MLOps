@@ -68,8 +68,8 @@ stages:
         model:
           name: random_forest
           params:
-            n_estimators: 300
-            max_depth: 12
+            n_estimators: 500
+            max_depth: 19
             min_samples_split: 5
             min_samples_leaf: 2
             random_state: 42
@@ -83,12 +83,12 @@ stages:
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: f57c19af227d7dd80fab6c5cd8bf4e73
+      md5: d6108a965cd3c4af236e6a9fd5f9d109
       size: 72
     - path: models/model.pkl
       hash: md5
-      md5: 14fa1803351ffe0e4fa5ed484f44d57e
-      size: 22461874
+      md5: 50e23019295e7abfcd8291691c189ac2
+      size: 61565554
   split:
     cmd: python src/data/split.py
     deps:
@@ -146,8 +146,8 @@ stages:
       size: 8612
     - path: models/model.pkl
       hash: md5
-      md5: 14fa1803351ffe0e4fa5ed484f44d57e
-      size: 22461874
+      md5: b964d389eeafe2019c244b53aea55954
+      size: 60913234
     - path: src/model/evaluate.py
       hash: md5
       md5: f39f56ab2820821b62f9805bf7cdacd4
@@ -155,8 +155,8 @@ stages:
     outs:
     - path: metrics/test_metrics.json
       hash: md5
-      md5: 3e2d62ac3c10f8fa35380edd02c4a599
-      size: 109
+      md5: 0b28ef63e153453bb3233164449e8c3b
+      size: 111
   gate:
     cmd: python src/model/gate.py
     deps:
@@ -166,5 +166,5 @@ stages:
       size: 47
     - path: metrics/metrics.json
       hash: md5
-      md5: f57c19af227d7dd80fab6c5cd8bf4e73
-      size: 72
+      md5: 108db28a95f30c48363ae2568ccb2ef3
+      size: 71
