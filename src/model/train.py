@@ -2,16 +2,19 @@ import json
 import yaml
 import pandas as pd
 from pathlib import Path
-from sklearn.linear_model import LogisticRegression
+
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
-from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 
 import mlflow
 import mlflow.sklearn
 import os
+import joblib
 
+# --------------------
 # paths
+# --------------------
 CFG_PATH = "configs/model/train.yaml"
 METRICS_PATH = "metrics/metrics.json"
 MODEL_PATH = "models/model.pkl"
@@ -21,14 +24,15 @@ TRAIN_Y = "data/split/train_labels.parquet"
 VAL_X = "data/split/val_features.parquet"
 VAL_Y = "data/split/val_labels.parquet"
 
+
 def load_config():
     with open(CFG_PATH, "r") as f:
         return yaml.safe_load(f)
 
+
 def main():
     cfg = load_config()
     model_cfg = cfg["model"]
-
 
     # --------------------
     # MLflow setup
@@ -36,48 +40,57 @@ def main():
     mlflow.set_experiment("customer_churn")
 
     with mlflow.start_run():
-        # tags (PR / CI friendly)
         mlflow.set_tags({
             "git_branch": os.getenv("GITHUB_REF_NAME", "local"),
             "git_sha": os.getenv("GITHUB_SHA", "local"),
             "stage": "train",
         })
 
-        # log params
+        # --------------------
+        # Log params
+        # --------------------
         mlflow.log_params({
-            "model": "LogisticRegression",
+            "model": "RandomForestClassifier",
+            "n_estimators": model_cfg["n_estimators"],
+            "max_depth": model_cfg["max_depth"],
+            "min_samples_split": model_cfg["min_samples_split"],
+            "min_samples_leaf": model_cfg["min_samples_leaf"],
             "random_state": model_cfg["random_state"],
-            "max_iter": model_cfg["max_iter"],
-            "C": model_cfg["C"],
-            "solver": model_cfg["solver"],
         })
 
+        # --------------------
+        # Load data
+        # --------------------
         X_train = pd.read_parquet(TRAIN_X)
         y_train = pd.read_parquet(TRAIN_Y).iloc[:, 0]
 
         X_val = pd.read_parquet(VAL_X)
         y_val = pd.read_parquet(VAL_Y).iloc[:, 0]
 
-
+        # --------------------
+        # Model pipeline
+        # (No scaler for RF)
+        # --------------------
         pipeline = Pipeline(
             steps=[
-                ("scaler", StandardScaler()),
                 (
                     "model",
-                    LogisticRegression(
+                    RandomForestClassifier(
+                        n_estimators=model_cfg["n_estimators"],
+                        max_depth=model_cfg["max_depth"],
+                        min_samples_split=model_cfg["min_samples_split"],
+                        min_samples_leaf=model_cfg["min_samples_leaf"],
                         random_state=model_cfg["random_state"],
-                        max_iter=model_cfg["max_iter"],
-                        C=model_cfg["C"],
-                        solver=model_cfg["solver"],
+                        n_jobs=model_cfg.get("n_jobs", -1),
                     ),
-                ),
+                )
             ]
         )
 
         # 1️⃣ Train
         pipeline.fit(X_train, y_train)
 
-        # 2️⃣ Validation evaluation
+        # 2️⃣ Validation
         val_preds = pipeline.predict(X_val)
 
         val_accuracy = accuracy_score(y_val, val_preds)
@@ -88,25 +101,23 @@ def main():
             "val_f1": val_f1,
         }
 
-        # log metrics to MLflow
         mlflow.log_metrics(metrics)
 
         # --------------------
-        # MLflow Model Registry (register)
+        # MLflow model registry
         # --------------------
         mlflow.sklearn.log_model(
             sk_model=pipeline,
-            name="model",
+            artifact_path="model",
             registered_model_name="customer_churn_model"
         )
 
-
-
-        # save artifacts
+        # --------------------
+        # Save artifacts
+        # --------------------
         Path("models").mkdir(exist_ok=True)
         Path("metrics").mkdir(exist_ok=True)
 
-        import joblib
         joblib.dump(pipeline, MODEL_PATH)
 
         with open(METRICS_PATH, "w") as f:
@@ -114,6 +125,7 @@ def main():
 
         print("✅ Training completed")
         print(metrics)
+
 
 if __name__ == "__main__":
     main()
