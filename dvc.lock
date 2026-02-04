@@ -21,8 +21,8 @@ stages:
     deps:
     - path: configs/data/feature.yaml
       hash: md5
-      md5: f683ab4c2222b3c09deda00154d394a0
-      size: 561
+      md5: 9e5c26c9dc1d26d047d919d194fc11f7
+      size: 635
     - path: data/processed/customer_churn.parquet
       hash: md5
       md5: 9689e0f41bb4c3d97a0db5c9c48688d8
@@ -34,8 +34,8 @@ stages:
     outs:
     - path: data/features/feature.parquet
       hash: md5
-      md5: a5ea4dbb43e5f6ecb050024e38044b0d
-      size: 52367
+      md5: d30b2505843b687e053921aca37f6294
+      size: 99297
     - path: data/features/label.parquet
       hash: md5
       md5: 6590276f68eeb57966458459fa00422f
@@ -45,48 +45,51 @@ stages:
     deps:
     - path: data/split/train_features.parquet
       hash: md5
-      md5: 78ac52f28f4618b98fdb50dc6e0f0cb9
-      size: 64076
+      md5: 6281be40ee39602c7d09312498934c06
+      size: 97576
     - path: data/split/train_labels.parquet
       hash: md5
       md5: e0a16cb142b4bbdb7882f0b448b3d969
       size: 25792
     - path: data/split/val_features.parquet
       hash: md5
-      md5: 7df3536423f0f1f94010683b4b9b7df7
-      size: 17568
+      md5: 85052222d38e5ba243facb8594c183ae
+      size: 25351
     - path: data/split/val_labels.parquet
       hash: md5
       md5: a2e26c1c6a1b46a01ba3b4a56517b8b1
       size: 5306
     - path: src/model/train.py
       hash: md5
-      md5: c911d1443a6286ba0bdaae157d14c56d
-      size: 2011
+      md5: 75e5f5387ce79aab8989b77afaadb11c
+      size: 3240
     params:
       configs/model/train.yaml:
         model:
-          name: logistic_regression
-          random_state: 42
-          max_iter: 5000
-          C: 0.7
-          solver: lbfgs
+          name: xgboost
+          params:
+            n_estimators: 500
+            learning_rate: 0.05
+            max_depth: 6
+            subsample: 0.8
+            colsample_bytree: 0.8
+            eval_metric: logloss
+            random_state: 42
         output:
           model_path: models/model.pkl
           metrics_path: metrics/metrics.json
         training:
           test_size: 0.2
           stratify: true
-          debug_param: 1
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: 183b509b8dadc2b5e14052febdea0366
-      size: 94
+      md5: 3320cbf86f58a7492a67c8c09b0eac5b
+      size: 72
     - path: models/model.pkl
       hash: md5
-      md5: e0369f0d1988e28fbf6b2e3101dbddf3
-      size: 2273
+      md5: 6fc08b97cd7a637598516f4554eccf36
+      size: 1693069
   split:
     cmd: python src/data/split.py
     deps:
@@ -96,8 +99,8 @@ stages:
       size: 76
     - path: data/features/feature.parquet
       hash: md5
-      md5: a5ea4dbb43e5f6ecb050024e38044b0d
-      size: 52367
+      md5: d30b2505843b687e053921aca37f6294
+      size: 99297
     - path: data/features/label.parquet
       hash: md5
       md5: 6590276f68eeb57966458459fa00422f
@@ -109,24 +112,24 @@ stages:
     outs:
     - path: data/split/test_features.parquet
       hash: md5
-      md5: 301afdfb9e6ca1feffc1d3ce7ac69022
-      size: 25525
+      md5: b6ce77255fe56bb3b4be33409f4a5021
+      size: 37524
     - path: data/split/test_labels.parquet
       hash: md5
       md5: 4fbce2555983d6cd38498d7182905f21
       size: 8612
     - path: data/split/train_features.parquet
       hash: md5
-      md5: 78ac52f28f4618b98fdb50dc6e0f0cb9
-      size: 64076
+      md5: 6281be40ee39602c7d09312498934c06
+      size: 97576
     - path: data/split/train_labels.parquet
       hash: md5
       md5: e0a16cb142b4bbdb7882f0b448b3d969
       size: 25792
     - path: data/split/val_features.parquet
       hash: md5
-      md5: 7df3536423f0f1f94010683b4b9b7df7
-      size: 17568
+      md5: 85052222d38e5ba243facb8594c183ae
+      size: 25351
     - path: data/split/val_labels.parquet
       hash: md5
       md5: a2e26c1c6a1b46a01ba3b4a56517b8b1
@@ -136,16 +139,16 @@ stages:
     deps:
     - path: data/split/test_features.parquet
       hash: md5
-      md5: 301afdfb9e6ca1feffc1d3ce7ac69022
-      size: 25525
+      md5: b6ce77255fe56bb3b4be33409f4a5021
+      size: 37524
     - path: data/split/test_labels.parquet
       hash: md5
       md5: 4fbce2555983d6cd38498d7182905f21
       size: 8612
     - path: models/model.pkl
       hash: md5
-      md5: e0369f0d1988e28fbf6b2e3101dbddf3
-      size: 2273
+      md5: 6fc08b97cd7a637598516f4554eccf36
+      size: 1693069
     - path: src/model/evaluate.py
       hash: md5
       md5: f39f56ab2820821b62f9805bf7cdacd4
@@ -153,7 +156,7 @@ stages:
     outs:
     - path: metrics/test_metrics.json
       hash: md5
-      md5: a3e792d5dd15dac05b09c277ce757888
+      md5: d86df5f9f5d51c67d38a608072490f6a
       size: 108
   gate:
     cmd: python src/model/gate.py
@@ -164,5 +167,5 @@ stages:
       size: 47
     - path: metrics/metrics.json
       hash: md5
-      md5: 183b509b8dadc2b5e14052febdea0366
-      size: 94
+      md5: 3320cbf86f58a7492a67c8c09b0eac5b
+      size: 72

@@ -10,11 +10,15 @@ features:
   numeric:
     - tenure
     - MonthlyCharges
+    - SeniorCitizen
+    - TotalCharges
 
   categorical:
     - Contract
     - PaymentMethod
     - InternetService
+    - Partner
+    - Dependents
 
 categorical_config:
   encoding: onehot
