@@ -13,6 +13,7 @@ This project implements a **production-grade MLOps pipeline** for customer churn
 ## Pipeline Flow
 raw → preprocess → feature → split → train → evaluate → gate
 
+---
 
 Each stage is:
 
@@ -33,18 +34,18 @@ Each stage is:
 
 ## Final Status
 
-| Area | Status |
-|----|----|
-| GitHub PR Flow | ✅ |
-| DVC Versioning | ✅ |
-| MLflow Tracking | ✅ |
-| DagsHub Remote | ✅ |
-| CI/CD | ✅ |
-| Production Readiness | ✅ |
+| Area                 | Status |
+| -------------------- | ------ |
+| GitHub PR Flow       | ✅      |
+| DVC Versioning       | ✅      |
+| MLflow Tracking      | ✅      |
+| DagsHub Remote       | ✅      |
+| CI/CD                | ✅      |
+| Production Readiness | ✅      |
 
 ---
 
-## 🚀 Next Steps (Optional)
+##  Next Steps (Optional)
 
 - Model serving (FastAPI)
 - Data drift detection
