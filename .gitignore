@@ -1,3 +1,4 @@
 metrics/*.json
 mlruns/
 mlflow.db
+notebooks/
