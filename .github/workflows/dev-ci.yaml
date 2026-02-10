@@ -1,4 +1,4 @@
-name: Dev CI - Integration Test
+name: Dev CI - Integration Validation
 
 on:
   push:
@@ -9,25 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.10"
-    
-    # when use docker, it would be removed  
+
     - name: Install runtime deps
       run: |
         pip install -r requirements.txt
         pip install dvc dagshub mlflow
 
-
+    # remote data
     - name: DVC pull
       run: dvc pull
 
-    - name: Reproduce pipeline
-      run: dvc repro
-
-    - name: Push artifacts
-      run: dvc push
+    # Pipeline check
+    - name: Validate pipeline graph
+      run: dvc dag

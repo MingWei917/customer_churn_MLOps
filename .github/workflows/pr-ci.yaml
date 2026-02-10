@@ -33,3 +33,6 @@ jobs:
 
     - name: Check regression
       run: python scripts/check_regression.py metrics_diff.json
+    
+    - name: Check DVC cache existence
+      run: dvc status -c
