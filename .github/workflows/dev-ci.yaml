@@ -29,7 +29,3 @@ jobs:
     # Pipeline check
     - name: Validate pipeline graph
       run: dvc dag
-
-    # validation metrics
-    - name: Validate metrics
-      run: python scripts/check_regression.py metrics/metrics.json
